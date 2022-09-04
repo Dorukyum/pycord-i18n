@@ -1,4 +1,4 @@
-<div style="text-align: center;">
+<div align="center">
     <h1>pycord-i18n</h1>
     <h2>Internationalization for Pycord</h2>
 </div>
