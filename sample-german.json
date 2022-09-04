@@ -1,0 +1,11 @@
+{
+    "strings": {
+        "Hello, this sentence is in English": "Hallo, dieser Satz ist auf Deutsch"
+    },
+    "commands": {
+        "hello": {
+            "name": "hallo",
+            "description": "Sag hallo"
+        }
+    }
+}
