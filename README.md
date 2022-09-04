@@ -8,6 +8,16 @@
 - Command name & description localization
 - Based on user & server locale (no need for storage!)
 
+## Installation
+To install this extension, run the corresponding command:
+```sh
+# linux / macOS
+python3 -m pip install pycord-i18n
+
+# windows
+python -m pip install pycord-i18n
+```
+
 ## Usage
 1. Setup your internationalization files just like [sample-german.json](https://github.com/Dorukyum/pycord-i18n/blob/main/sample-german.json).
 
