@@ -91,6 +91,17 @@ class I18n:
                     }
                 }
             }
+
+    Attributes
+    ----------
+    instance: I18n
+        The initialized I18n instance.
+    current_locale: Locale
+        The locale of the last invokation.
+    translations: Dict[Locale, Dict[str, str]]
+        String translations. Accessed via `I18n.get_text`.
+    localizations: Dict[Locale, Dict[str, CommandLocalization]]
+        Command localizations. Applied via `.localize` or `.localize_commands`.
     """
 
     instance: "I18n"
@@ -189,7 +200,7 @@ class I18n:
 
     @classmethod
     def get_text(cls, original: str) -> str:
-        """Translate a string based on the `translations` attribute of the i18n object.
+        """Translate a string based on the `translations` attribute of the I18n instance.
         Returns the passed string if a translation for the current locale isn't found."""
 
         self = I18n.instance
