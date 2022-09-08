@@ -20,6 +20,7 @@ python -m pip install pycord-i18n
 
 ## Usage
 1. Setup your internationalization files just like [sample-german.json](https://github.com/Dorukyum/pycord-i18n/blob/main/sample-german.json).
+Note that **all fields are optional** and **you can use whichever file format you want** as long as you pass the translations into I18n in the given format.
 
 2. Load your files:
 ```py
