@@ -54,3 +54,7 @@ async def hello(ctx):
 # if you don't want to use `@localize` on every command, simply use the following method after adding the commands to the bot:
 i18n.localize_commands()
 ```
+
+## Changelog
+### v1.1.0
+- Added option localization support
