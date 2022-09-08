@@ -1,8 +1,15 @@
-from typing import Dict, Literal, Optional, TypedDict, TypeVar, Union
+from typing import Dict, Literal, TypedDict, TypeVar, Union
 
 from discord import ApplicationContext, Bot, ContextMenuCommand, SlashCommand, utils
 
-__all__ = ("Locale", "I18n", "_")
+__all__ = (
+    "Locale",
+    "OptionLocalization",
+    "CommandLocalization",
+    "Internationalization",
+    "I18n",
+    "_",
+)
 
 Localizable = Union[SlashCommand, ContextMenuCommand]
 CommandT = TypeVar("CommandT", bound=Localizable)
@@ -40,9 +47,18 @@ Locale = Literal[
 ]
 
 
+class OptionLocalization(TypedDict, total=False):
+    name: str
+    description: str
+
+
+class CommandLocalization(OptionLocalization, total=False):
+    options: Dict[str, OptionLocalization]
+
+
 class Internationalization(TypedDict, total=False):
     strings: Dict[str, str]
-    commands: Dict[str, Dict[Literal["name", "description"], str]]
+    commands: Dict[str, CommandLocalization]
 
 
 class I18n:
@@ -56,7 +72,7 @@ class I18n:
         Whether to consider the user's locale when translating responses or not.
         By default this is `False` and responses will be based on the server's locale.
     **translations:
-        Key-value pairs of locales and translations based on the following format:
+        Key-value pairs of locales and translations based on the `Internationalization` typeddict.
 
         .. code-block:: python
 
@@ -66,6 +82,12 @@ class I18n:
                     "help": {
                         "name": "hilfe",
                         "description": "...",
+                        "options": {
+                            "category": {
+                                "name": "kategorie",
+                                "description": "...",
+                            }
+                        }
                     }
                 }
             }
@@ -86,7 +108,7 @@ class I18n:
             for k, v in internalizations.items()
             if (strings := v.get("strings"))
         }
-        self.localizations: Dict[Locale, Dict[str, Dict[Literal["name", "description"], str]]] = {  # type: ignore
+        self.localizations: Dict[Locale, Dict[str, CommandLocalization]] = {  # type: ignore
             k.replace("_", "-"): commands
             for k, v in internalizations.items()
             if (commands := v.get("commands"))
@@ -100,19 +122,32 @@ class I18n:
         self,
         command: Localizable,
         locale: str,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
+        localizations: CommandLocalization,
     ) -> None:
-        if name:
-            if command.name_localizations is not None:
-                command.name_localizations[locale] = name
-            else:
+        if name := localizations.get("name"):
+            if command.name_localizations is None:
                 command.name_localizations = {locale: name}
-        if isinstance(command, SlashCommand) and description:
-            if command.description_localizations is not None:
-                command.description_localizations[locale] = description
             else:
-                command.description_localizations = {locale: description}
+                command.name_localizations[locale] = name
+        if isinstance(command, SlashCommand):
+            if description := localizations.get("description"):
+                if command.description_localizations is None:
+                    command.description_localizations = {locale: description}
+                else:
+                    command.description_localizations[locale] = description
+            if options := localizations.get("options"):
+                for option_name, localization in options.items():
+                    if option := utils.get(command.options, name=option_name):
+                        if op_name := localization.get("name"):
+                            if option.name_localizations is None:
+                                option.name_localizations = {locale: op_name}
+                            else:
+                                option.name_localizations[locale] = op_name
+                        if op_description := localization.get("description"):
+                            if option.description_localizations is None:
+                                option.description_localizations = {locale: op_description}
+                            else:
+                                option.description_localizations[locale] = op_description
 
     def localize(self, command: CommandT) -> CommandT:
         """A decorator to apply name and description localizations to a command."""
@@ -122,8 +157,7 @@ class I18n:
                 self._localize_command(
                     command,
                     locale,
-                    localizations.get("name"),
-                    localizations.get("description"),
+                    localizations,
                 )
         return command
 
@@ -139,8 +173,7 @@ class I18n:
                     self._localize_command(
                         command,
                         locale,
-                        localizations.get("name"),
-                        localizations.get("description"),
+                        localizations,
                     )
 
     async def set_current_locale(self, ctx: ApplicationContext) -> None:

@@ -5,7 +5,7 @@
 
 ## Key Features
 - Translated responses
-- Command name & description localization
+- Command name, description & option localization
 - Based on user & server locale (no need for storage!)
 
 ## Installation

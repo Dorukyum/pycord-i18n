@@ -5,7 +5,13 @@
     "commands": {
         "hello": {
             "name": "hallo",
-            "description": "Sag hallo"
+            "description": "Sag hallo",
+            "options":  {
+                "user": {
+                    "name": "benutzer",
+                    "description": "Ein Benutzer"
+                }
+            }
         }
     }
 }
