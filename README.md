@@ -56,5 +56,8 @@ i18n.localize_commands()
 ```
 
 ## Changelog
+### v1.2.0
+- Added formatting support
+
 ### v1.1.0
 - Added option localization support

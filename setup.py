@@ -11,7 +11,7 @@ with open("README.md", encoding="utf-8") as f:
 setup(
     name="pycord-i18n",
     packages=["pycord.i18n"],
-    version="1.1.0",
+    version="1.2.0",
     license="MIT",
     description="Internationalization for pycord",
     long_description=readme,
