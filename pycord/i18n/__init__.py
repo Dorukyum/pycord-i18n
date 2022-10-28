@@ -156,9 +156,13 @@ class I18n:
                                 option.name_localizations[locale] = op_name
                         if op_description := localization.get("description"):
                             if option.description_localizations is None:
-                                option.description_localizations = {locale: op_description}
+                                option.description_localizations = {
+                                    locale: op_description
+                                }
                             else:
-                                option.description_localizations[locale] = op_description
+                                option.description_localizations[
+                                    locale
+                                ] = op_description
 
     def localize(self, command: CommandT) -> CommandT:
         """A decorator to apply name and description localizations to a command."""
@@ -199,16 +203,21 @@ class I18n:
             self.current_locale = locale  # type: ignore # locale is of type Locale
 
     @classmethod
-    def get_text(cls, original: str) -> str:
+    def get_text(cls, original: str, *format_args: object) -> str:
         """Translate a string based on the `translations` attribute of the I18n instance.
-        Returns the passed string if a translation for the current locale isn't found."""
+        Returns the passed string if a translation for the current locale isn't found.
+        If `format_args` is given, the output string will be formatted using `text.format(*format_args)`."""
 
         self = I18n.instance
-        if (translations := self.translations.get(self.current_locale)) and (
-            translation := translations.get(original)
-        ):
-            return translation
-        return original
+        text = (
+            translation
+            if (translations := self.translations.get(self.current_locale))
+            and (translation := translations.get(original))
+            else original
+        )
+        if format_args:
+            return text.format(*format_args)
+        return text
 
 
 _ = I18n.get_text
