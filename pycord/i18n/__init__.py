@@ -1,6 +1,14 @@
 from typing import Dict, Literal, TypedDict, TypeVar, Union
 
-from discord import ApplicationContext, Bot, ContextMenuCommand, SlashCommand, utils
+from discord import (
+    MISSING,
+    ApplicationContext,
+    Bot,
+    ContextMenuCommand,
+    Option,
+    SlashCommand,
+    utils,
+)
 
 __all__ = (
     "Locale",
@@ -129,40 +137,42 @@ class I18n:
         bot.before_invoke(self.set_current_locale)
         I18n.instance = self
 
+    def _add_localization(
+        self,
+        target: Union[Localizable, Option],
+        field: Literal["name", "description"],
+        locale: Locale,
+        value: str,
+    ):
+        attr = f"{field}_localizations"
+        if (current := getattr(target, attr)) in (None, MISSING):
+            setattr(target, attr, {locale: value})
+        else:
+            current[locale] = value
+
     def _localize_command(
         self,
         command: Localizable,
-        locale: str,
+        locale: Locale,
         localizations: CommandLocalization,
     ) -> None:
         if name := localizations.get("name"):
-            if command.name_localizations is None:
-                command.name_localizations = {locale: name}
-            else:
-                command.name_localizations[locale] = name
+            self._add_localization(command, "name", locale, name)
+
         if isinstance(command, SlashCommand):
             if description := localizations.get("description"):
-                if command.description_localizations is None:
-                    command.description_localizations = {locale: description}
-                else:
-                    command.description_localizations[locale] = description
+                self._add_localization(command, "description", locale, description)
+
             if options := localizations.get("options"):
                 for option_name, localization in options.items():
                     if option := utils.get(command.options, name=option_name):
                         if op_name := localization.get("name"):
-                            if option.name_localizations is None:
-                                option.name_localizations = {locale: op_name}
-                            else:
-                                option.name_localizations[locale] = op_name
+                            self._add_localization(option, "name", locale, op_name)
+
                         if op_description := localization.get("description"):
-                            if option.description_localizations is None:
-                                option.description_localizations = {
-                                    locale: op_description
-                                }
-                            else:
-                                option.description_localizations[
-                                    locale
-                                ] = op_description
+                            self._add_localization(
+                                option, "description", locale, op_description
+                            )
 
     def localize(self, command: CommandT) -> CommandT:
         """A decorator to apply name and description localizations to a command."""
@@ -206,7 +216,8 @@ class I18n:
     def get_text(cls, original: str, *format_args: object) -> str:
         """Translate a string based on the `translations` attribute of the I18n instance.
         Returns the passed string if a translation for the current locale isn't found.
-        If `format_args` is given, the output string will be formatted using `text.format(*format_args)`."""
+        If `format_args` is given, the output string will be formatted using `text.format(*format_args)`.
+        """
 
         self = I18n.instance
         text = (
