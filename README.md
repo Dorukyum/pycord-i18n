@@ -56,6 +56,9 @@ i18n.localize_commands()
 ```
 
 ## Changelog
+### v1.2.1
+- Fixed an issue with Pycord v2.5 compatibility
+
 ### v1.2.0
 - Added formatting support
 
