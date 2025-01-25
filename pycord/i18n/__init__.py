@@ -22,11 +22,13 @@ __all__ = (
 Localizable = Union[SlashCommand, ContextMenuCommand]
 CommandT = TypeVar("CommandT", bound=Localizable)
 Locale = Literal[
+    "id",
     "da",
     "de",
     "en-GB",
     "en-US",
     "es-ES",
+    "es-419",
     "fr",
     "hr",
     "it",
